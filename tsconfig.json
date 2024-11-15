@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    //    "target": "ESNext",
+    //    "module": "ESNext",
+    //    "moduleResolution": "Bundler",
+    "strict": false,
+//    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+//    "jsx": "react-jsx",
+//    "jsxImportSource": "hono/jsx",
+    "lib": [
+      "es5",
+      "es6"
+    ],
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./build",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+//    "sourceMap": true,
+//    "allowSyntheticDefaultImports": true
+  },
+  "emitDecoratorMetadata": true,
+  "experimentalDecorators": true,
+  "esModuleInterop": true
+}
