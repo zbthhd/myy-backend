@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import {createModuleLogger, logger} from '../utils/logger';
+import {createModuleLogger} from '../utils/logger';
 const authLogger = createModuleLogger('auth');
 
 const authRoutes = new Hono();

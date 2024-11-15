@@ -3,7 +3,7 @@ import {serve} from '@hono/node-server'
 import {Hono} from 'hono'
 import {cors} from 'hono/cors'
 import {AppDataSource} from "./db/orm/data-source"
-import {createModuleLogger, logger} from './utils/logger';
+import {createModuleLogger} from './utils/logger';
 
 const indexLogger = createModuleLogger('index');
 

@@ -39,7 +39,9 @@ open http://localhost:3090
 目前的解决方法是在`tsconfig.json`中添加如下配置：
 
 ```json
-"strictPropertyInitialization": false
+{
+  "strictPropertyInitialization": false
+}
 ```
 
 ### foo
