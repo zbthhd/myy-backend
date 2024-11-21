@@ -1,5 +1,10 @@
 import {Hono} from 'hono';
 import {createModuleLogger} from '../utils/logger';
+import {AppDataSource} from "../db/orm/data-source";
+import {User} from "../db/orm/entity/User";
+import * as bcrypt from 'bcrypt';
+import {Response400} from "../utils/types";
+
 const authLogger = createModuleLogger('auth');
 
 const authRoutes = new Hono();
@@ -44,6 +49,38 @@ authRoutes.post('/register', async (c) => {
 
     const body: Request = await c.req.parseBody();
 
+    // XXX 1 manager 实体管理器
+    const user = new User();
+    user.user_name = "Timber";
+    user.password = bcrypt.hashSync("Saw1", 10);
+    user.phone = "123456789";
+    user.wc_openid = "123456789";
+    user.wc_unionid = "123456789";
+    await AppDataSource.manager.save(user);
+
+    const allUsers = await AppDataSource.manager.find(User); // find all
+    const timber = await AppDataSource.manager.findOne(User, {select: ["user_name"], where: {user_name: "Timber"}}); // find by name
+
+
+    // XXX 2 repository 实体仓库
+    const userRepository = AppDataSource.getRepository(User);
+    const newUser = userRepository.create({
+        user_name: "Timber",
+        password: bcrypt.hashSync("Saw2", 10),
+        phone: "123456789",
+        wc_openid: "123456789",
+        wc_unionid: "123456789"
+    });
+    await userRepository.save(newUser);
+
+    const allUsers2 = await userRepository.find(); // find all
+    const firstUser2 = await userRepository.findOneBy({user_name: 'Timber'}); // find one by name
+    const timber2 = await userRepository.findBy({user_name: 'Timber', age: 25}) // find by condition
+    const [users, usersCount] = await userRepository.findAndCount() // find and count
+    console.log(users)
+    console.log('count: ' + usersCount)
+
+
     // 校验逻辑
     if ('some error') {
         // 具体参考apifox错误码定义
@@ -51,7 +88,7 @@ authRoutes.post('/register', async (c) => {
         return c.json({
             code: 40001,
             message: 'Some error message',
-        } as Response, 401)
+        } as Response400, 401)
 
     }
 
