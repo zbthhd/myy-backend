@@ -1,56 +1,38 @@
-import "reflect-metadata"
-import {DataSource} from "typeorm"
-import * as dotenv from "dotenv"
-
-dotenv.config({path: '.env.dev'})
-
-
-import {User} from "./entity/User";
-import {Tree} from "./entity/Tree";
-
-// export const createAppDataSource = (
-//     host: string,
-//     port: number,
-//     username: string,
-//     password: string,
-//     database: string,
-// ) => {
-//     return new DataSource({
-//         type: "mysql",
-//         host: host,
-//         port: port,
-//         username: username,
-//         password: password,
-//         database: database,
-//         synchronize: true,
-//         logging: false,
-//         entities: [User,Tree],
-//         migrations: [],
-//         subscribers: [],
-//         // entitySkipConstructor: true,
-//     })
-// }
+import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
+import { User } from '../../entity/User';
+import { Tree } from '../../entity/Tree';
 
 
-// export const AppDataSource = createAppDataSource(
-//     process.env.DB_HOST,
-//     parseInt(process.env.DB_PORT),
-//     process.env.DB_USER,
-//     process.env.DB_PASS,
-//     process.env.DB_NAME
-// )
+// 加载 .env 文件
+dotenv.config({ path: '.env.dev' });
+
+// 显示打印环境变量
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_USERNAME:', process.env.DB_USERNAME);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+console.log('DB_DATABASE:', process.env.DB_DATABASE);
 
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+    port: parseInt(process.env.DB_PORT, 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
     synchronize: true,
     logging: false,
-    entities: [User,Tree],
+    entities: [User, Tree],
     migrations: [],
-    subscribers: [],
-})
+    subscribers: []
+});
 
+// 初始化数据源
+AppDataSource.initialize()
+    .then(() => {
+        console.log("Data Source has been initialized!");
+    })
+    .catch((err) => {
+        console.error("Error during Data Source initialization:", err);
+    });
