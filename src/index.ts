@@ -53,7 +53,7 @@ app.get('/posts/:id', (c) => {
 import deviceRoutes from "./routes/device";
 import miscRoutes from "./routes/misc";
 import authRoutes from "./routes/auth";
-import userRoutes from "./routes/UserRoute";
+import userRoutes from "./routes/user_route";
 
 apiV1.route('/device', deviceRoutes);
 apiV1.route('/', miscRoutes);
