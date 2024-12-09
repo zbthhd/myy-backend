@@ -7,12 +7,14 @@ import { Tree } from '../../entity/Tree';
 // 加载 .env 文件
 dotenv.config({ path: '.env.dev' });
 
+
 // 显示打印环境变量
 console.log('DB_HOST:', process.env.DB_HOST);
 console.log('DB_PORT:', process.env.DB_PORT);
 console.log('DB_USERNAME:', process.env.DB_USERNAME);
 console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
 console.log('DB_DATABASE:', process.env.DB_DATABASE);
+
 
 export const AppDataSource = new DataSource({
     type: "mysql",
