@@ -12,7 +12,7 @@ import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn} from "typeorm"
 export class User {
 
     @PrimaryGeneratedColumn('uuid', {comment: '用户id'})
-    id: number
+    user_id: number
 
     @Column('varchar', {length: 255, nullable: true})
     user_name: string
@@ -23,14 +23,6 @@ export class User {
     @Column('varchar', {length: 16})
     phone: string
 
-    @Column('varchar', {length: 255})
-    wc_unionid: string
-
-    @Column('varchar', {length: 255})
-    wc_openid: string
-
-    @Column('int', {nullable: true})
-    age: number
 
     @CreateDateColumn()
     create_time: Date
