@@ -20,11 +20,19 @@ build({
     packages: 'external',
     // 设置输出格式为 ES 模块，与 package.json 中的 "type": "module" 兼容
     format: 'esm',
+    define: {
+        // 定义NODE_ENV为production，使index.ts中的条件判断生效
+        'process.env.NODE_ENV': '"production"'
+    },
     plugins: [
         // 添加 dotenv-run 插件，用于处理环境变量
         dotenvRun({
             verbose: true,
-            files: ['.env.dev'],
+            // files: ['.env.dev'],
+            // 只包含以下前缀的环境变量，排除系统环境变量
+            // prefix: "^(NODE_|APP_|API_)",
+            // 确保环境变量被注入到构建文件中
+            inject: true,
             // 使用正则表达式排除包含(x86)的环境变量
             prefix: "^(?!.*\\(x86\\)).*$",
             verbose: true

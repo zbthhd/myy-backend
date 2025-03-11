@@ -1,4 +1,3 @@
-import { env } from "@dotenv-run/core";
 import "reflect-metadata"
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
@@ -11,17 +10,20 @@ import miscRoutes from "./src/routes/misc";
 import authRoutes from "./src/routes/auth";
 import userRoutes from "./src/routes/user_route";
 
-// 使用 dotenv-run 加载环境变量
-env({ 
-  files: ['.env.dev'],
-  verbose: true 
-});
-
 const indexLogger = createModuleLogger('index');
 
-indexLogger.info(".env file loaded")
-indexLogger.info(process.env)
-
+// 只在开发环境中加载.env文件
+// 在生产环境中，环境变量会通过esbuild插件嵌入到构建文件中
+if (process.env.NODE_ENV !== 'production') {
+  const { env } = await import("@dotenv-run/core");
+  env({ 
+    files: ['.env.dev'],
+    verbose: true 
+  });
+  
+  indexLogger.info(".env file loaded in development mode");
+  indexLogger.info(process.env);
+}
 
 // 创建应用
 const app = new Hono();
