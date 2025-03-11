@@ -1,12 +1,11 @@
 edition: 3.0.0
-name: my-app
+name: myy-backend
 access: 'default'
-
 vars:
   region: 'cn-hongkong'
-
+  functionName: "myy-backend"
 resources:
-  start_proces:
+  myy-backend:
     component: fc3
     actions:
       pre-deploy:
@@ -18,13 +17,11 @@ resources:
           path: ./
         - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm run build
           path: ./
-  my_app:
-    component: fc3
     props:
       serviceName: 'my-service'
       domainName: 'foliumatrix.com'  
       region: ${vars.region}
-      functionName: 'my-app'
+      functionName: ${vars.functionName}
       runtime: 'custom.debian10'
       description: 'hello world by Hono'
       timeout: 10
@@ -54,3 +51,13 @@ resources:
           description: ''
           qualifier: LATEST
           triggerType: http
+  fc3_domain_0:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ${vars.functionName}
