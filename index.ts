@@ -56,7 +56,7 @@ apiV1.route('/', userRoutes);
 
 app.route('/api/v1', apiV1);
 
-const port = 3090
+const port = process.env.NODE_ENV === 'development' ? 3090 : 80
 
 
 AppDataSource.initialize().then(() => {

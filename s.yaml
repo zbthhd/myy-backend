@@ -9,9 +9,7 @@ resources:
     component: fc3
     actions:
       pre-deploy:
-        - run: echo -e "ALICLOUD_ACCESS_KEY_ID=$ALICLOUD_ACCESS_KEY_ID\nALICLOUD_ACCESS_KEY_SECRET=$ALICLOUD_ACCESS_KEY_SECRET" > .env.local
-          path: ./
-        - run: cat .env.local
+        - run: cat /kaniko/tmp/workspace/.env
           path: ./
         - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm install
           path: ./
@@ -28,7 +26,7 @@ resources:
       functionName: ${vars.functionName}
       runtime: 'custom.debian10'
       description: 'hello world by Hono'
-      timeout: 10
+      timeout: 60
       memorySize: 512
       environmentVariables:
         PATH: >-
