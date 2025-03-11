@@ -3,6 +3,7 @@
 import { build } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
 import esbuildPluginTsc from "esbuild-plugin-tsc";
+import { dotenvRun } from "@dotenv-run/esbuild";
 
 
 // --bundle --outfile=./dist/index.js --platform=node --target=node20
@@ -20,6 +21,14 @@ build({
     // 设置输出格式为 ES 模块，与 package.json 中的 "type": "module" 兼容
     format: 'esm',
     plugins: [
+        // 添加 dotenv-run 插件，用于处理环境变量
+        dotenvRun({
+            verbose: true,
+            files: ['.env.dev'],
+            // 使用正则表达式排除包含(x86)的环境变量
+            prefix: "^(?!.*\\(x86\\)).*$",
+            verbose: true
+        }),
         esbuildPluginPino({ transports: ["pino-pretty"] }),
         esbuildPluginTsc({
             force: true

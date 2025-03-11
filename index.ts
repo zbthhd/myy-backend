@@ -1,4 +1,4 @@
-import * as dotenv from "dotenv";
+import { env } from "@dotenv-run/core";
 import "reflect-metadata"
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
@@ -11,13 +11,14 @@ import miscRoutes from "./src/routes/misc";
 import authRoutes from "./src/routes/auth";
 import userRoutes from "./src/routes/user_route";
 
-dotenv.config({ path: '.env.dev' });
-
+// 使用 dotenv-run 加载环境变量
+env({ 
+  files: ['.env.dev'],
+  verbose: true 
+});
 
 const indexLogger = createModuleLogger('index');
 
-
-dotenv.config({ path: '.env.dev' })
 indexLogger.info(".env file loaded")
 indexLogger.info(process.env)
 
@@ -66,5 +67,3 @@ AppDataSource.initialize().then(() => {
 }).then(() => {
     indexLogger.info(`Server is running on port ${port}`)
 })
-
-
