@@ -3,9 +3,21 @@ name: my-app
 access: 'default'
 
 vars:
-  region: 'cn-shenzhen'
+  region: 'cn-hongkong'
 
 resources:
+  start_proces:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: echo -e "ALICLOUD_ACCESS_KEY_ID=$ALICLOUD_ACCESS_KEY_ID\nALICLOUD_ACCESS_KEY_SECRET=$ALICLOUD_ACCESS_KEY_SECRET" > .env.local
+          path: ./
+        - run: cat .env.local
+          path: ./
+        - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm install
+          path: ./
+        - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm run build
+          path: ./
   my_app:
     component: fc3
     props:
