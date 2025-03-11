@@ -55,9 +55,9 @@ resources:
     component: fc3-domain
     props:
       region: ${vars.region}
-      domainName: auto
+      domainName: api.foliumatrix.com
       protocol: HTTP
       routeConfig:
         routes:
-          - path: /*
+          - path: /v1/*
             functionName: ${vars.functionName}
