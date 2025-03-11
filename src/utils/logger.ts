@@ -15,5 +15,5 @@ export const logger = pino({
 
 // 可以导出创建子 logger 的工具函数
 export const createModuleLogger = (module: string) => {
-    return logger.child({module});
+    return logger.child({ module });
 };

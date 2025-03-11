@@ -3,12 +3,14 @@ name: my-app
 access: 'default'
 
 vars:
-  region: 'us-west-1'
+  region: 'cn-shenzhen'
 
 resources:
   my_app:
     component: fc3
     props:
+      serviceName: 'my-service'
+      domainName: 'foliumatrix.com'  
       region: ${vars.region}
       functionName: 'my-app'
       runtime: 'custom.debian10'

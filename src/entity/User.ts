@@ -6,33 +6,38 @@
 //     create_time date        not null comment '创建时间'
 // ) comment '用户信息表';
 
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn} from "typeorm"
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
 export class User {
 
-    @PrimaryGeneratedColumn('uuid', {comment: '用户id'})
+    @PrimaryGeneratedColumn('uuid', { comment: '用户id' })
     id: string
 
-    @Column('varchar', {length: 255, nullable: true})
+    @Column('varchar', { length: 255, nullable: true })
     user_name: string
 
-    @Column('varchar', {length: 255, nullable: true})
+    @Column('varchar', { length: 255, nullable: true })
     password: string
 
-    @Column('varchar', {length: 16})
+    @Column('varchar', { length: 16 })
     phone: string
 
-    @Column('varchar', {length: 255})
+    @Column('varchar', { length: 255 })
     wc_unionid: string
 
-    @Column('varchar', {length: 255})
+    @Column('varchar', { length: 255 })
     wc_openid: string
 
-    @Column('int', {nullable: true})
+    @Column('int', { nullable: true })
     age: number
 
     @CreateDateColumn()
     create_time: Date
 
+    @Column('boolean', { default: false }) // false: male, true: female
+    gender: boolean;
+
+    @Column('varchar', { length: 255, default: null, nullable: true, comment: '用户地区' })
+    region: string;
 }

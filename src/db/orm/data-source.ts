@@ -1,12 +1,10 @@
-import {DataSource} from 'typeorm';
+import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import {User} from '../../entity/User';
-import {Tree} from '../../entity/Tree';
-
+import { User } from '../../entity/User';
+import { Tree } from '../../entity/Tree';
 
 // 加载 .env 文件
-dotenv.config({path: '.env.dev'});
-
+dotenv.config({ path: '.env.dev' });
 
 // 显示打印环境变量
 console.log('DB_HOST:', process.env.DB_HOST);
@@ -15,7 +13,7 @@ console.log('DB_USERNAME:', process.env.DB_USERNAME);
 console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
 console.log('DB_DATABASE:', process.env.DB_DATABASE);
 
-
+// 定义数据源
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST,
@@ -23,8 +21,8 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    synchronize: true,
-    logging: false,
+    synchronize: true, // 或者 false，根据你的需求
+    logging: ['query', 'error'], // 启用查询和错误日志
     entities: [User, Tree],
     migrations: [],
     subscribers: []

@@ -1,23 +1,23 @@
 import * as dotenv from "dotenv";
 import "reflect-metadata"
-import {serve} from '@hono/node-server'
-import {Hono} from 'hono'
-import {cors} from 'hono/cors'
-import {AppDataSource} from "./db/orm/data-source"
-import {createModuleLogger} from './utils/logger';
+import { serve } from '@hono/node-server'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { AppDataSource } from "./src/db/orm/data-source"
+import { createModuleLogger } from './src/utils/logger';
 // 挂载子应用
-import deviceRoutes from "./routes/device";
-import miscRoutes from "./routes/misc";
-import authRoutes from "./routes/auth";
-import userRoutes from "./routes/user_route";
+import deviceRoutes from "./src/routes/device";
+import miscRoutes from "./src/routes/misc";
+import authRoutes from "./src/routes/auth";
+import userRoutes from "./src/routes/user_route";
 
-dotenv.config({path: '.env.dev'});
+dotenv.config({ path: '.env.dev' });
 
 
 const indexLogger = createModuleLogger('index');
 
 
-dotenv.config({path: '.env.dev'})
+dotenv.config({ path: '.env.dev' })
 indexLogger.info(".env file loaded")
 indexLogger.info(process.env)
 
