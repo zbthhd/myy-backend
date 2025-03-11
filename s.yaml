@@ -17,6 +17,10 @@ resources:
           path: ./
         - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm run build
           path: ./
+        - run: cp package.json dist/
+          path: ./
+        - run: cd dist && npm install --production
+          path: ./
     props:
       serviceName: 'my-service'
       domainName: 'foliumatrix.com'  
