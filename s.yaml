@@ -55,7 +55,7 @@ resources:
     component: fc3-domain
     props:
       region: ${vars.region}
-      domainName: api.foliumatrix.com
+      domainName: apitest.foliumatrix.com
       protocol: HTTP
       routeConfig:
         routes:
