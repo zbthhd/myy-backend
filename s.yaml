@@ -3,7 +3,7 @@ name: myy-backend
 access: 'default'
 vars:
   region: 'cn-hongkong'
-  functionName: "myy-backend"
+  functionName: myy-backend-${env(DOMAIN_PREFIX)}
 resources:
   myy-backend:
     component: fc3
