@@ -24,6 +24,7 @@ build({
         // 定义NODE_ENV为production，使index.ts中的条件判断生效
         'process.env.NODE_ENV': '"production"'
     },
+    keepNames: true,
     plugins: [
         // 添加 dotenv-run 插件，用于处理环境变量
         dotenvRun({
