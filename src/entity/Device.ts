@@ -19,19 +19,55 @@
 // comment '设备';
 //
 
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
+@Entity('myt01_iot_record')
 export class Device {
-
     @PrimaryGeneratedColumn('increment')
-    id: number
+    id: number;
 
-    @Column('varchar', {length: 255})
-    device_name: string
+    @Column({ type: 'varchar', length: 50 })
+    deviceName: string;
 
-    @Column('varchar', {length: 255})
-    product_key: string
+    @Column({ type: 'bigint' })
+    time: number;
 
+    @Column({ type: 'float' })
+    LightLux: number;
 
+    @Column({ type: 'float' })
+    RelativeHumidity: number;
+
+    @Column({ type: 'float' })
+    SoilEC: number;
+
+    @Column({ type: 'float' })
+    SoilPH: number;
+
+    @Column({ type: 'float' })
+    SoilHumidity: number;
+
+    @Column({ type: 'float' })
+    SoilTemperature: number;
+
+    @Column({ type: 'float' })
+    SoilN: number;
+
+    @Column({ type: 'float' })
+    SoilP: number;
+
+    @Column({ type: 'float' })
+    SoilK: number;
+
+    @Column({ type: 'tinyint', width: 1 })
+    WaterOutletSwitch: number;
+
+    @Column({ type: 'float' })
+    CurrentTemperature: number;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createTime: Date;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+    updateTime: Date;
 }
