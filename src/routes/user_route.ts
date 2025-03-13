@@ -8,8 +8,8 @@ const userController = new UserController();
 const app = new Hono();
 
 app.get('/users', userController.getUsers);
-app.get('/users/:id', userController.getUserById);
-
+app.get('/users/id', userController.getUserById);
+app.get('/users/get-mydev', userController.getMyDev);
 
 
 // // 新增的根据电话号码获取验证码的接口
