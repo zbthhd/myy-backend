@@ -5,6 +5,11 @@ import { Context } from 'hono';
 import { generateSecureRandomCode } from '../utils/randomCodeGenerator';
 import * as dotenv from 'dotenv';
 import { handleErrorResponse, handleSuccessResponse } from '../utils/response';
+import { And, Any, In } from 'typeorm';
+import { error } from 'console';
+import { UserDevMapping } from '../entity/UserDevMapping';
+import { compareSync } from 'bcrypt';
+import { Device } from '../entity/Device';
 
 //import redisClient from '../services/redisClient';
 
@@ -15,29 +20,64 @@ dotenv.config({ path: '.env.dev' });
 
 export class UserController {
     async getUsers(c: Context) {
+        const userRepository = AppDataSource.getRepository(User);
+
+
         try {
-            const userRepository = AppDataSource.getRepository(User);
+
             const users = await userRepository.find();
-            return c.json(users, 200);
+            return handleSuccessResponse(c, users);
         } catch (error) {
             console.error('Error fetching users:', error); // 添加日志输出
-            return c.json({ error: 'Internal Server Error' }, 500);
+            return handleErrorResponse(c, '查找失败', 500, error);
         }
     }
-
+    async getMyDev(c: Context) {
+        const userDevMappingRepository = AppDataSource.getRepository(UserDevMapping);
+        const devRepository = AppDataSource.getRepository(Device);
+        try {
+            // 从请求参数中获取 user_id
+            const user_id = c.req.query('user_id');
+            console.log(user_id);
+            if (!user_id || isNaN(parseInt(user_id, 10))) {
+                return handleErrorResponse(c, 'Invalid or missing user_id parameter', 400);
+            }
+            // 查找用户设备映射表中的记录
+            console.log("到这儿了吗？");
+            const parsedUserId = parseInt(user_id, 10);
+            console.log("userID:", parsedUserId)
+            const userDevMappings = await userDevMappingRepository.find({
+                where: { user_id: parsedUserId },
+            });
+            console.log("mappings", userDevMappings);
+            // 提取所有的 dev_id
+            const devIds = userDevMappings.map(mapping => mapping.dev_id);
+            console.log("devIds", devIds);
+            // 根据 dev_id 查询设备表
+            const devices = await devRepository.find({
+                where: { id: In(devIds) }, // 使用 In 操作符查找多个 dev_id
+            });
+            console.log("devices", devices);
+            return handleSuccessResponse(c, devices);
+        }
+        catch (error) {
+            console.error('Error fetching devices:', error ? (error instanceof Error ? error.stack : JSON.stringify(error, null, 2)) : 'Unknown error');
+            return handleErrorResponse(c, 'Failed to fetch devices', 500, error);
+        }
+    }
     async getUserById(c: Context) {
         try {
             const { id } = c.req.param();
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.findOneBy({ id: id });
             if (!user) {
-                return c.json({ error: 'User not found' }, 404);
+                return handleErrorResponse(c, '没找到该用户', 404, error)
             }
 
-            return c.json(user, 200);
+            return handleSuccessResponse(c, user)
         } catch (error) {
             console.error('Error fetching user:', error); // 添加日志输出
-            return c.json({ error: 'Internal Server Error' }, 500);
+            return handleErrorResponse(c, '出错了', 404, error)
         }
     }
     // //实现发送验证码的功能
