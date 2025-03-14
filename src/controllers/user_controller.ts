@@ -10,6 +10,7 @@ import { error } from 'console';
 import { UserDevMapping } from '../entity/UserDevMapping';
 import { compareSync } from 'bcrypt';
 import { Device } from '../entity/Device';
+import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 
 //import redisClient from '../services/redisClient';
 
@@ -19,10 +20,27 @@ dotenv.config({ path: '.env.dev' });
 
 
 export class UserController {
+    //获取一个树木的订单养护列表
+    async getTaskList(c: Context) {
+        const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
+        const {id}=c.req.param();
+        console.log("id:",id);
+        // 验证 id 是否有效（例如，是否为数字）
+        if (!id || isNaN(parseInt(id, 10))) {
+            return handleErrorResponse(c, 'Invalid or missing user_id parameter', 400);
+        }
+        try {
+            const oreders = await ordersRepository.find({
+                where:{id:parseInt(id,10)},
+            });
+            return handleSuccessResponse(c, oreders);
+        } catch (error) {
+            console.error('Error fetching users:', error); // 添加日志输出
+            return handleErrorResponse(c, '查找失败', 500, error);
+        }
+    }
     async getUsers(c: Context) {
         const userRepository = AppDataSource.getRepository(User);
-
-
         try {
 
             const users = await userRepository.find();
