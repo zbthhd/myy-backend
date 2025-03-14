@@ -27,7 +27,10 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: true, // 或者 false，根据你的需求
     logging: ['query', 'error'], // 启用查询和错误日志
+
     entities: [User, Tree, UserDevMapping, Device, Record,MaintenanceOrders],
+
+    
     migrations: [],
     subscribers: []
 });
