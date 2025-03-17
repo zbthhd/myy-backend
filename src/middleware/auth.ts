@@ -7,6 +7,7 @@ import { handleErrorResponse } from '../utils/response';
 dotenv.config({ path: '.env.dev' });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
 const TOKEN_EXPIRY = '24h'; // 默认24小时
 
 // 生成JWT令牌
@@ -54,6 +55,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     if (!decoded) {
       return handleErrorResponse(c, '无效的令牌', 401);
     }
+
     
     // 将解码后的用户信息添加到请求上下文中
     c.set('user', decoded);
@@ -62,6 +64,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     await next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
+
       return handleErrorResponse(c, 'Token已过期，请重新登录', 401);
     } else if (error instanceof jwt.JsonWebTokenError) {
       return handleErrorResponse(c, '无效的Token格式', 401);
@@ -70,6 +73,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     } else {
       console.error('Token验证错误:', error);
       return handleErrorResponse(c, '认证失败，请重新登录', 401);
+
     }
   }
 }; 
