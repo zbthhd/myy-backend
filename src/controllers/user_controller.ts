@@ -13,6 +13,8 @@ import { Device } from '../entity/Device';
 
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 import jwt from 'jsonwebtoken';
+import { createModuleLogger } from '../utils/logger';
+
 
 //import redisClient from '../services/redisClient';
 
@@ -21,6 +23,11 @@ dotenv.config({ path: '.env.dev' });
 
 // JWT密钥，实际应用中应该放在环境变量中
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+
+// 在类定义前添加logger
+const userLogger = createModuleLogger('user_controller');
+
 
 export class UserController {
     //获取一个树木的订单养护列表

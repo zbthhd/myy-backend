@@ -7,11 +7,10 @@ const userController = new UserController();
 
 const userRoutes = new Hono();
 
+
+
 // 公开路由
 userRoutes.post('/login', userController.login.bind(userController));
-
-const app = new Hono();
-
 
 // 需要认证的路由
 userRoutes.get('/users', authMiddleware, userController.getUsers);

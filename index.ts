@@ -32,7 +32,6 @@ const apiV1 = new Hono();
 app.use('*', cors())
 apiV1.use('*', cors())
 
-
 // 示例
 app.get('/', (c) => {
     return c.text('Hello Hono!')
