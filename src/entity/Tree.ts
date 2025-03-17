@@ -1,7 +1,7 @@
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm"
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 
 
-@Entity()
+@Entity('tree')
 export class Tree {
 
     @PrimaryGeneratedColumn("increment")
@@ -15,5 +15,12 @@ export class Tree {
 
     @UpdateDateColumn()
     update_date: Date
+
+
+    @Column({ type: 'varchar', length: 255 })
+    model: string;
+
+    @Column({ type: 'varchar', length: 50 })
+    name: string;
 
 }

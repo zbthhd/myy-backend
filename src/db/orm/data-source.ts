@@ -6,6 +6,10 @@ import { UserDevMapping } from '../../entity/UserDevMapping';
 import { Device } from '../../entity/Device';
 import { Record } from '../../entity/Record';
 
+import { MaintenanceOrders } from '../../entity/MaintenanceOrders';
+
+
+
 // 加载 .env 文件
 dotenv.config({ path: '.env.dev' });
 
@@ -26,7 +30,9 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: true, // 或者 false，根据你的需求
     logging: ['query', 'error'], // 启用查询和错误日志
-    entities: [User, Tree, UserDevMapping, Device, Record],
+
+    entities: [User, Tree, UserDevMapping, Device, Record,MaintenanceOrders],
+
     migrations: [],
     subscribers: []
 });
