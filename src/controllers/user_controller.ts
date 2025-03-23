@@ -10,28 +10,38 @@ import { error } from 'console';
 import { UserDevMapping } from '../entity/UserDevMapping';
 import { compareSync } from 'bcrypt';
 import { Device } from '../entity/Device';
+
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
+import jwt from 'jsonwebtoken';
+import { createModuleLogger } from '../utils/logger';
+
 
 //import redisClient from '../services/redisClient';
 
 // 加载 .env 文件
 dotenv.config({ path: '.env.dev' });
 
+// JWT密钥，实际应用中应该放在环境变量中
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+
+// 在类定义前添加logger
+const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
     //获取一个树木的订单养护列表
     async getTaskList(c: Context) {
         const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
-        const {id}=c.req.param();
-        console.log("id:",id);
+        const { id } = c.req.param();
+        console.log("id:", id);
         // 验证 id 是否有效（例如，是否为数字）
         if (!id || isNaN(parseInt(id, 10))) {
             return handleErrorResponse(c, 'Invalid or missing user_id parameter', 400);
         }
         try {
             const oreders = await ordersRepository.find({
-                where:{id:parseInt(id,10)},
+                where: { id: parseInt(id, 10) },
             });
             return handleSuccessResponse(c, oreders);
         } catch (error) {
@@ -167,31 +177,42 @@ export class UserController {
     //         return handleErrorResponse(c, 'Internal Server Error', 500, error);
     //     }
     // }
-    // //登录的逻辑实现
-    // async login(c: Context) {
-    //     try {
-    //         const requestBody = await c.req.json();
-    //         const { user_name, password, phone, verificationCode } = requestBody;
+    //登录的逻辑实现
+    async login(c: Context) {
+        try {
+            const requestBody = await c.req.json();
+            const { user_name, password, phone, verificationCode } = requestBody;
 
-    //         if (user_name && password) {
-    //             // 用户名和密码登录
-    //             console.log("正在进行用户名和密码登录：", user_name, password);
-    //             let result = await this.loginByUsernameAndPassword(user_name, password);
-    //             return handleSuccessResponse(c, result.user, "登录成功", 200);
-    //         } else if (phone && verificationCode) {
-    //             // 手机号和验证码登录
-    //             let result = await this.loginByPhoneAndVerificationCode(phone, verificationCode);
-    //             if (result.success == true) {
-    //                 return handleSuccessResponse(c, result.user, "登录成功", 200);
-    //             }
-    //         } else {
-    //             return handleErrorResponse(c, 'Invalid parameters', 400);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error during login:', error);
-    //         return handleErrorResponse(c, 'Internal Server Error', 500, error);
-    //     }
-    // }
+            if (user_name && password) {
+                // 用户名和密码登录
+                console.log("正在进行用户名和密码登录：", user_name, password);
+                let result = await this.loginByUsernameAndPassword(user_name, password);
+                
+                // 生成 JWT token
+                const token = jwt.sign(
+                    { 
+                        id: result.user.id,
+                        user_name: result.user.user_name,
+                        phone: result.user.phone,
+                        // 添加其他你想要包含在 token 中的用户信息
+                    },
+                    JWT_SECRET,
+                    { expiresIn: '24h' } // token 24小时后过期
+                );
+
+                // 返回用户信息和 token
+                return handleSuccessResponse(c, token, "登录成功", 200);
+            } else if (phone && verificationCode) {
+                // 手机号和验证码登录逻辑保持不变
+                return handleErrorResponse(c, '暂不支持验证码登录', 400);
+            } else {
+                return handleErrorResponse(c, 'Invalid parameters', 400);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            return handleErrorResponse(c, 'Internal Server Error', 500, error);
+        }
+    }
     //根据用户名和密码登录
     private async loginByUsernameAndPassword(username: string, password: string) {
         const userRepository = AppDataSource.getRepository(User);

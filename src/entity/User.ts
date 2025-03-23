@@ -8,7 +8,7 @@
 
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm"
 
-@Entity()
+@Entity('user')
 export class User {
 
     @PrimaryGeneratedColumn('uuid', { comment: '用户id' })

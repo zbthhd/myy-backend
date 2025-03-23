@@ -1,0 +1,54 @@
+name: Deploy my-app
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Serverless Devs CLI
+      run: npm install -g @serverless-devs/s
+
+    - name: Install dependencies
+      run: npm install
+    
+    
+    - name: Build project
+      run: |
+        npm run build
+        echo "Build completed. Listing contents of dist directory:"
+
+
+    
+    - name: Verify configuration is loaded from default path
+      run: s config get --access default
+    
+
+    # # 上一步配置的密钥就用在这里
+    # - name: Add Serverless Devs Config
+    #   run: s config add --AccountID ${{ secrets.ALIYUN_ACCOUNT_ID }} --AccessKeyID ${{ secrets.ALIYUN_ACCESS_KEY_ID }} --AccessKeySecret ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }} -a default
+    #   env:  
+    #     ALIYUN_ACCOUNT_ID: ${{ secrets.ALIYUN_ACCOUNT_ID }}  
+    #     ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}  
+    #     ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}  
+    #     DB_HOST: ${{ secrets.DB_HOST }}  
+    #     DB_PORT: ${{ secrets.DB_PORT }}  
+    #     DB_USERNAME: ${{ secrets.DB_USERNAME }}  
+    #     DB_PASSWORD: ${{ secrets.DB_PASSWORD }}  
+    #     DB_DATABASE: ${{ secrets.DB_DATABASE }} 
+    # - name: Verify configuration is loaded from default path
+    #   run: s config get --access default 
+    # - run: |
+    #     echo "Listing contents of current directory before deployment:"
+    #     ls -la
+    #     echo "Listing contents of dist directory before deployment:"
+    #     ls -la ./dist
+    #     s deploy --use-local --assume-yes --skip-push -t s.yaml --access default --debug
+    

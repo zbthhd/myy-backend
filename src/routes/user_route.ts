@@ -1,16 +1,22 @@
 import { Hono } from 'hono';
 import { UserController } from '../controllers/user_controller';
 import { handleErrorResponse, handleSuccessResponse } from '../utils/response';
-
+import { authMiddleware } from '../middleware/auth';
 
 const userController = new UserController();
 
-const app = new Hono();
+const userRoutes = new Hono();
 
-app.get('/users', userController.getUsers);
-app.get('/users/id', userController.getUserById);
-app.get('/users/get-mydev', userController.getMyDev);
-app.get('/tree/task/:id/list',userController.getTaskList)
+
+
+// 公开路由
+userRoutes.post('/login', userController.login.bind(userController));
+
+// 需要认证的路由
+userRoutes.get('/users', authMiddleware, userController.getUsers);
+userRoutes.get('/users/id', authMiddleware, userController.getUserById);
+userRoutes.get('/users/get-mydev', authMiddleware, userController.getMyDev);
+userRoutes.get('/tree/task/:id/list', authMiddleware, userController.getTaskList);
 
 // // 新增的根据电话号码获取验证码的接口
 // app.get('/user/get-verifiction', async (c) => {
@@ -34,4 +40,4 @@ app.get('/tree/task/:id/list',userController.getTaskList)
 //     return userController.login(c);
 // });
 
-export default app;
+export default userRoutes;
