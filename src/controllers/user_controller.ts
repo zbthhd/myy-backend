@@ -13,11 +13,13 @@ import { Device } from '../entity/Device';
 import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 
+
 import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
 import ossClient from '../services/ossClient';
 import { resourceLimits } from 'worker_threads';
+
 
 
 //import redisClient from '../services/redisClient';
@@ -331,10 +333,12 @@ export class UserController {
                         phone: result.user.phone,
                         exp: Math.floor(Date.now() / 1000) + 31536000, // Token expires in 1 year
 
+
                         // 添加其他你想要包含在 token 中的用户信息
                     }
                 );
                 console.log("token:", token);
+
 
                 // 返回用户信息和 token
                 return handleSuccessResponse(c, token, "登录成功", 200);

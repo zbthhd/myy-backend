@@ -14,6 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 
 
+
 // 生成JWT令牌
 export const generateToken = async (payload: any) => {
   return await sign(payload, JWT_SECRET);
@@ -57,6 +58,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     // 验证 token
     const decoded = await verifyToken(token);
  
+
     if (!decoded) {
       return handleErrorResponse(c, '无效的令牌', 401);
     }
@@ -68,6 +70,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     // 继续处理请求
     await next();
   } catch (error) {
+
     if (error instanceof Error) {
       // 检查是否是 JwtTokenExpired 错误
       if (error.name === 'JwtTokenExpired') {
@@ -80,6 +83,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
       // 如果 error 不是 Error 类型，记录原始值并返回通用错误
       console.error('未知错误:', error);
       return handleErrorResponse(c, '认证失败，请稍后重试', 500);
+
     }
 
   }
