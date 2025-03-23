@@ -15,6 +15,10 @@ import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 import jwt from 'jsonwebtoken';
 import { createModuleLogger } from '../utils/logger';
 
+import { generateToken } from '../middleware/auth';
+
+
+
 
 //import redisClient from '../services/redisClient';
 
@@ -187,18 +191,19 @@ export class UserController {
                 // 用户名和密码登录
                 console.log("正在进行用户名和密码登录：", user_name, password);
                 let result = await this.loginByUsernameAndPassword(user_name, password);
-                
+
                 // 生成 JWT token
-                const token = jwt.sign(
-                    { 
+                const token = await generateToken(
+                    {
                         id: result.user.id,
                         user_name: result.user.user_name,
                         phone: result.user.phone,
+                        exp: Math.floor(Date.now() / 1000) + 31536000, // Token expires in 1 year
+                    
                         // 添加其他你想要包含在 token 中的用户信息
-                    },
-                    JWT_SECRET,
-                    { expiresIn: '24h' } // token 24小时后过期
+                    }
                 );
+                console.log("token:",token);
 
                 // 返回用户信息和 token
                 return handleSuccessResponse(c, token, "登录成功", 200);
