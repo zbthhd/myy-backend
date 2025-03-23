@@ -8,6 +8,7 @@ export class MaintenanceOrders {
     @Column({ type: 'int' })
     user_id: number; // 用户ID
 
+    // 0表示问诊 1表示工单 2表示浇水
     @Column({ type: 'tinyint' })
     maintenance_categories: number; // 维护类别
 
@@ -20,5 +21,18 @@ export class MaintenanceOrders {
     @Column({ type: 'tinyint', default: 0 })
     is_completion: number; // 是否完成，默认为0表示未完成
 
-    // 如果需要其他字段或关系，可以继续添加
+    // 新增的字段
+    @Column({ type: 'json', nullable: true })
+    user_images: string[] | null; // 存储用户上传的图片信息
+
+    @Column({ type: 'text', nullable: true })
+    consultation_description: string | null; // 存储用户问诊描述信息
+
+    // 新增字段：模型建议
+    @Column({ type: 'text', nullable: true })
+    model_advice: string | null; // 模型建议
+
+    // 新增字段：人工建议
+    @Column({ type: 'text', nullable: true })
+    manual_advice: string | null; // 人工建议
 }
