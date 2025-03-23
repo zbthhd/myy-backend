@@ -8,15 +8,17 @@ import { handleErrorResponse, handleSuccessResponse } from '../utils/response';
 import { And, Any, In } from 'typeorm';
 import { error } from 'console';
 import { UserDevMapping } from '../entity/UserDevMapping';
-import { compareSync } from 'bcrypt';
+import * as fs from 'fs';
 import { Device } from '../entity/Device';
-
+import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
-import jwt from 'jsonwebtoken';
+
+
 import { createModuleLogger } from '../utils/logger';
-
 import { generateToken } from '../middleware/auth';
-
+import path from 'path';
+import ossClient from '../services/ossClient';
+import { resourceLimits } from 'worker_threads';
 
 
 
@@ -34,6 +36,137 @@ const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
+
+    async upload_work_order(c: Context) {
+        try {
+            // 解析请求体（假设是 JSON 格式）
+            const body = await c.req.json();
+            console.log('Request body:', body);
+
+            // 获取 order_id
+            const orderId = body['order_id'];
+            if (!orderId) {
+                return handleErrorResponse(c, 'Invalid or missing order_id', 400);
+            }
+
+            // 获取维护订单的 Repository
+            const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
+
+            // 根据 order_id 查找现有记录
+            const existingOrder = await ordersRepository.findOne({
+                where: { id: orderId },
+            });
+
+            if (!existingOrder) {
+                return handleErrorResponse(c, 'Order not found', 404);
+            }
+
+            // 创建新记录并复制现有数据
+            const newOrder = new MaintenanceOrders();
+
+            // 手动赋值现有字段（避免直接使用 Object.assign）
+            newOrder.user_id = existingOrder.user_id;
+            newOrder.maintenance_categories = 1; // 修改为新的维护类别
+            newOrder.create_time = new Date(); // 设置新的创建时间
+            newOrder.completion_time = null; // 初始值为 null
+            newOrder.is_completion = 0; // 初始值为未完成
+            newOrder.user_images = existingOrder.user_images; // 复制图片信息
+            newOrder.consultation_description = existingOrder.consultation_description; // 复制描述信息
+            newOrder.model_advice = existingOrder.model_advice; // 复制模型建议
+            newOrder.manual_advice = existingOrder.manual_advice; // 复制人工建议
+
+            // 插入新记录到数据库
+            const savedOrder = await ordersRepository.save(newOrder);
+
+            // 返回成功响应
+            return handleSuccessResponse(c, { newOrder: savedOrder }, 'Work order created successfully', 200);
+        } catch (error) {
+            console.error('Error uploading work order:', error);
+            return handleErrorResponse(c, 'Failed to upload work order', 500, error);
+        }
+
+    }
+    async upload_consultations(c: Context) {
+        try {
+            const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
+            console.log('Request headers:', c.req.header());
+            // 解析请求体，启用 all 选项以支持多个文件
+            const body = await c.req.parseBody();
+            console.log(body)
+            // 获取 user_id 和 files
+            const userId = body['user_id'] as string | null;
+            const files = body['images[]'];
+            const consultationDescription = body['consultation_description'] as string | null;
+
+            console.log(userId)
+            console.log(files);
+            console.log(consultationDescription)
+            // 提取文件字段（支持单文件或多文件）
+
+            const fileList = Array.isArray(files) ? files : [files]; // 确保是数组
+            if (!userId) {
+                return handleErrorResponse(c, "缺少user_id", 400, error)
+            }
+            if (!fileList || !Array.isArray(fileList)) {
+                return handleErrorResponse(c, "没有上传有效文件", 401)
+            }
+
+            // 确保 files 是一个数组
+            const imageUrls = await Promise.all(
+                fileList.map(async (file) => {
+                    // 检查 file 是否是 File 对象
+                    if (!(file instanceof File)) {
+                        return handleErrorResponse(c, "上传文件不正确", 400, error)
+                    }
+
+                    // 创建临时目录（如果不存在）
+                    const tmpDir = os.tmpdir();
+                    if (!fs.existsSync(tmpDir)) {
+                        fs.mkdirSync(tmpDir);
+                    }
+                    // 创建临时文件路径
+                    const tempFilePath = path.join(tmpDir, `${Date.now()}-${file.name}`);
+                    const buffer = Buffer.from(await file.arrayBuffer());
+
+                    // 将文件保存到临时目录
+                    fs.writeFileSync(tempFilePath, buffer);
+
+                    // 生成唯一的文件名，并加入 images/{user_id} 文件夹
+                    const uniqueFileName = `images/${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}${path.extname(file.name)}`;
+                    // 上传到 OSS
+                    const result = await ossClient.put(uniqueFileName, tempFilePath);
+
+                    // 删除临时文件
+                    fs.unlinkSync(tempFilePath);
+
+                    // 返回文件的访问 URL
+                    return result.url;
+                })
+            );
+            // 插入数据到 maintenance_orders 表
+            const maintenanceOrderRepository = AppDataSource.getRepository(MaintenanceOrders);
+            const newMaintenanceOrder = new MaintenanceOrders();
+
+
+            newMaintenanceOrder.user_id = parseInt(userId, 10); // 确保 user_id 是数字
+            newMaintenanceOrder.maintenance_categories = 0; // 0 表示问诊
+            newMaintenanceOrder.create_time = new Date(); // 当前时间
+            newMaintenanceOrder.completion_time = new Date(); // 初始值为 null
+            newMaintenanceOrder.is_completion = 0; // 初始值为 0（未完成）
+            newMaintenanceOrder.user_images = imageUrls; // 图片 URL 数组
+            newMaintenanceOrder.consultation_description = consultationDescription || null; // 描述信息            const result = '调用大模型接口的返回';//这边准备上传图片和描述 大模型返回一个结果
+            const result = "大模型返回的信息 你的树木是缺水了";//大模型接口 传描述和图片信息
+            newMaintenanceOrder.model_advice = result;
+            // 返回上传结果
+
+            // 保存到数据库
+            const savedOrder = await maintenanceOrderRepository.save(newMaintenanceOrder);
+            return handleSuccessResponse(c, savedOrder, "上传成功", 200)
+        } catch (error) {
+            console.error('上传出错:', error);
+            return handleErrorResponse(c, "上传失败", 500, error)
+        }
+    }
     //获取一个树木的订单养护列表
     async getTaskList(c: Context) {
         const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
@@ -199,11 +332,13 @@ export class UserController {
                         user_name: result.user.user_name,
                         phone: result.user.phone,
                         exp: Math.floor(Date.now() / 1000) + 31536000, // Token expires in 1 year
-                    
+
+
                         // 添加其他你想要包含在 token 中的用户信息
                     }
                 );
-                console.log("token:",token);
+                console.log("token:", token);
+
 
                 // 返回用户信息和 token
                 return handleSuccessResponse(c, token, "登录成功", 200);

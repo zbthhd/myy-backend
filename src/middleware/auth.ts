@@ -63,7 +63,6 @@ export const authMiddleware = async (c: Context, next: Next) => {
       return handleErrorResponse(c, '无效的令牌', 401);
     }
 
-    
 
     // 将解码后的用户信息添加到请求上下文中
     c.set('user', decoded);
