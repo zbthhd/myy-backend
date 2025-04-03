@@ -13,11 +13,14 @@ import { Device } from '../entity/Device';
 import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 
+
+
 import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
 import ossClient from '../services/ossClient';
 import { resourceLimits } from 'worker_threads';
+
 
 
 //import redisClient from '../services/redisClient';
@@ -34,6 +37,7 @@ const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
+
     async maintenance_tree(c: Context) {
         try {
             // 解析请求体
@@ -68,6 +72,7 @@ export class UserController {
     }
 
     //上传工单 转人工
+
     async upload_work_order(c: Context) {
         try {
             // 解析请求体（假设是 JSON 格式）
@@ -97,7 +102,9 @@ export class UserController {
 
             // 手动赋值现有字段（避免直接使用 Object.assign）
             newOrder.user_id = existingOrder.user_id;
+
             newOrder.dev_id = existingOrder.dev_id;
+
             newOrder.maintenance_categories = 1; // 修改为新的维护类别
             newOrder.create_time = new Date(); // 设置新的创建时间
             newOrder.completion_time = null; // 初始值为 null
@@ -118,7 +125,9 @@ export class UserController {
         }
 
     }
+
     //上传问诊
+
     async upload_consultations(c: Context) {
         try {
             const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
@@ -130,7 +139,9 @@ export class UserController {
             const userId = body['user_id'] as string | null;
             const files = body['images[]'];
             const consultationDescription = body['consultation_description'] as string | null;
+
             const devId=body['dev_id'] as string | null;
+
 
             console.log(userId)
             console.log(files);
@@ -138,8 +149,10 @@ export class UserController {
             // 提取文件字段（支持单文件或多文件）
 
             const fileList = Array.isArray(files) ? files : [files]; // 确保是数组
+
             if (!userId||!devId) {
                 return handleErrorResponse(c, "缺少user_id或者dev_id", 400, error)
+
             }
             if (!fileList || !Array.isArray(fileList)) {
                 return handleErrorResponse(c, "没有上传有效文件", 401)
@@ -183,7 +196,9 @@ export class UserController {
 
 
             newMaintenanceOrder.user_id = parseInt(userId, 10); // 确保 user_id 是数字
+
             newMaintenanceOrder.dev_id = parseInt(devId, 10); // 确保 user_id 是数字
+
             newMaintenanceOrder.maintenance_categories = 0; // 0 表示问诊
             newMaintenanceOrder.create_time = new Date(); // 当前时间
             newMaintenanceOrder.completion_time = new Date(); // 初始值为 null
@@ -367,6 +382,7 @@ export class UserController {
                         user_name: result.user.user_name,
                         phone: result.user.phone,
                         exp: Math.floor(Date.now() / 1000) + 31536000, // Token expires in 1 year
+
 
                         // 添加其他你想要包含在 token 中的用户信息
                     }
