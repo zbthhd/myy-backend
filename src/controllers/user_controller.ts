@@ -34,7 +34,40 @@ const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
+    async maintenance_tree(c: Context) {
+        try {
+            // 解析请求体
+            const requestBody = await c.req.json();
+            const { user_id, dev_id } = requestBody;
+    
+            // 验证输入参数
+            if (!user_id || !dev_id) {
+                return handleErrorResponse(c, 'Missing or invalid user_id or dev_id', 400);
+            }
+    
+            // 获取 MaintenanceOrders 表的仓库
+            const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
+    
+            // 创建新记录
+            const newMaintenanceOrder = new MaintenanceOrders();
+            newMaintenanceOrder.maintenance_categories=2;
+            newMaintenanceOrder.user_id = parseInt(user_id, 10); // 确保 user_id 是数字
+            newMaintenanceOrder.dev_id = parseInt(dev_id, 10);   // 确保 dev_id 是数字
+            newMaintenanceOrder.create_time = new Date();        // 设置创建时间
+            newMaintenanceOrder.is_completion = 0;               // 初始状态为未完成
+    
+            // 保存到数据库
+            const savedOrder = await ordersRepository.save(newMaintenanceOrder);
+    
+            // 返回成功响应
+            return handleSuccessResponse(c, savedOrder, 'Maintenance order created successfully', 200);
+        } catch (error) {
+            console.error('Error creating maintenance order:', error);
+            return handleErrorResponse(c, 'Failed to create maintenance order', 500, error);
+        }
+    }
 
+    //上传工单 转人工
     async upload_work_order(c: Context) {
         try {
             // 解析请求体（假设是 JSON 格式）
@@ -64,6 +97,7 @@ export class UserController {
 
             // 手动赋值现有字段（避免直接使用 Object.assign）
             newOrder.user_id = existingOrder.user_id;
+            newOrder.dev_id = existingOrder.dev_id;
             newOrder.maintenance_categories = 1; // 修改为新的维护类别
             newOrder.create_time = new Date(); // 设置新的创建时间
             newOrder.completion_time = null; // 初始值为 null
@@ -84,6 +118,7 @@ export class UserController {
         }
 
     }
+    //上传问诊
     async upload_consultations(c: Context) {
         try {
             const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
@@ -95,6 +130,7 @@ export class UserController {
             const userId = body['user_id'] as string | null;
             const files = body['images[]'];
             const consultationDescription = body['consultation_description'] as string | null;
+            const devId=body['dev_id'] as string | null;
 
             console.log(userId)
             console.log(files);
@@ -102,8 +138,8 @@ export class UserController {
             // 提取文件字段（支持单文件或多文件）
 
             const fileList = Array.isArray(files) ? files : [files]; // 确保是数组
-            if (!userId) {
-                return handleErrorResponse(c, "缺少user_id", 400, error)
+            if (!userId||!devId) {
+                return handleErrorResponse(c, "缺少user_id或者dev_id", 400, error)
             }
             if (!fileList || !Array.isArray(fileList)) {
                 return handleErrorResponse(c, "没有上传有效文件", 401)
@@ -147,6 +183,7 @@ export class UserController {
 
 
             newMaintenanceOrder.user_id = parseInt(userId, 10); // 确保 user_id 是数字
+            newMaintenanceOrder.dev_id = parseInt(devId, 10); // 确保 user_id 是数字
             newMaintenanceOrder.maintenance_categories = 0; // 0 表示问诊
             newMaintenanceOrder.create_time = new Date(); // 当前时间
             newMaintenanceOrder.completion_time = new Date(); // 初始值为 null
