@@ -14,7 +14,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 
 
-
 // 生成JWT令牌
 export const generateToken = async (payload: any) => {
   return await sign(payload, JWT_SECRET);

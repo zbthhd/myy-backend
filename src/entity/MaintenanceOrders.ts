@@ -8,6 +8,11 @@ export class MaintenanceOrders {
     @Column({ type: 'int' })
     user_id: number; // 用户ID
 
+
+    @Column({ type: 'int' })
+    dev_id: number; // 设备苗木ID
+
+
     // 0表示问诊 1表示工单 2表示浇水
     @Column({ type: 'tinyint' })
     maintenance_categories: number; // 维护类别
