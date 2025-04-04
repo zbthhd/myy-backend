@@ -61,3 +61,7 @@ resources:
         routes:
           - path: /*
             functionName: ${vars.functionName}
+      certConfig:
+        certName: foliumatrix-3
+        certificate: oss://oss-cn-hongkong/myy-backend-foliumatrix/cert/cert.pem
+        privateKey: oss://oss-cn-hongkong/myy-backend-foliumatrix/cert/private.key
