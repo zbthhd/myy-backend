@@ -21,6 +21,7 @@ userRoutes.post('/users/upload-consultation', authMiddleware, userController.upl
 userRoutes.post('/users/upload-work-order', authMiddleware, userController.upload_work_order);
 
 userRoutes.post('/users/maintenance-appointment', authMiddleware, userController.maintenance_tree);
+userRoutes.get('/users/check-orders', authMiddleware, userController.getOrdersByUserId);
 
 // // 新增的根据电话号码获取验证码的接口
 // app.get('/user/get-verifiction', async (c) => {
