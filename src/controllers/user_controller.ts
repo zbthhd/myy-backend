@@ -34,15 +34,51 @@ const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
+    /**
+     * 根据 user_id 查询所有匹配的订单信息
+     * @param c - 请求上下文
+     */
+    async getOrdersByUserId(c: Context) {
+        try {
+            // 从查询参数中获取 user_id
+            const queryParams = c.req.query();
+            const user_id = queryParams['user_id'];
+
+            // 验证 user_id 是否有效（不能为空且必须为数字）
+            if (!user_id || isNaN(parseInt(user_id, 10))) {
+                return handleErrorResponse(c, '无效或缺失的 user_id 参数', 400);
+            }
+
+            // 获取 MaintenanceOrders 表的 Repository
+            const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
+
+            // 查询所有 user_id 匹配的订单信息
+            const orders = await ordersRepository.find({
+                where: { user_id: parseInt(user_id, 10) }, // 确保 user_id 是数字类型
+            });
+
+            // 如果没有找到任何订单，返回空数组
+            if (orders.length === 0) {
+                return handleSuccessResponse(c, [], '未找到该用户的订单信息', 200);
+            }
+
+            // 返回成功响应，包含查询到的订单信息
+            return handleSuccessResponse(c, orders, '订单信息查询成功', 200);
+        } catch (error) {
+            console.error('查询订单信息时出错:', error);
+            return handleErrorResponse(c, '查询订单信息失败', 500, error);
+        }
+    }
+    //发起养护请求
     async maintenance_tree(c: Context) {
         try {
             // 解析请求体
             const requestBody = await c.req.json();
-            const { user_id, dev_id } = requestBody;
+            const { user_id, dev_id,maintenance_categories } = requestBody;
     
             // 验证输入参数
-            if (!user_id || !dev_id) {
-                return handleErrorResponse(c, 'Missing or invalid user_id or dev_id', 400);
+            if (!user_id || !dev_id||!maintenance_categories) {
+                return handleErrorResponse(c, 'Missing or invalid user_id or dev_id or maintenance_categories', 400);
             }
     
             // 获取 MaintenanceOrders 表的仓库
@@ -50,9 +86,9 @@ export class UserController {
     
             // 创建新记录
             const newMaintenanceOrder = new MaintenanceOrders();
-            newMaintenanceOrder.maintenance_categories=2;
             newMaintenanceOrder.user_id = parseInt(user_id, 10); // 确保 user_id 是数字
             newMaintenanceOrder.dev_id = parseInt(dev_id, 10);   // 确保 dev_id 是数字
+            newMaintenanceOrder.maintenance_categories=parseInt(maintenance_categories,10);
             newMaintenanceOrder.create_time = new Date();        // 设置创建时间
             newMaintenanceOrder.is_completion = 0;               // 初始状态为未完成
     
