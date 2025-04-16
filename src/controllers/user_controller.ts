@@ -18,7 +18,11 @@ import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
 import ossClient from '../services/ossClient';
-import { resourceLimits } from 'worker_threads';
+
+
+
+import { pinyin } from 'pinyin-pro';
+
 
 
 //import redisClient from '../services/redisClient';
@@ -35,6 +39,63 @@ const userLogger = createModuleLogger('user_controller');
 
 
 export class UserController {
+    async getWeather(c: Context) {
+        // 这里实现获取天气的逻辑
+        // 可能需要调用第三方天气API
+        // 返回格式应与现有接口保持一致
+        try {
+            // 从查询参数中获取 location
+            const queryParams = c.req.query();
+            let location = queryParams['location'];
+    
+            // 验证 location 是否有效
+            if (!location) {
+                return handleErrorResponse(c, '缺少 location 参数', 400);
+            }
+            // 使用
+            location = pinyin(location, { 
+            toneType: 'none', // 不带声调
+            type: 'string'    // 返回字符串
+            });
+            console.log(location);
+            location="shenzhen"
+            // 这里可以添加调用天气API的逻辑
+            // const weatherData = await weatherApi.get(location);
+             // 调用心知天气API
+            const apiKey = 'S6TcPcSG5FNZconAv'; // 你的API密钥
+            const apiUrl = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
+        
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+        
+            // 处理API返回数据
+            // 定义一个接口来明确 data 的类型
+            interface WeatherApiResponse {
+                results: any[];
+                                }
+
+            // 假设 data 是 WeatherApiResponse 类型
+            const typedData = data as WeatherApiResponse;
+            if (!typedData.results || typedData.results.length === 0) {
+                return handleErrorResponse(c, '未找到该地点的天气信息', 404);
+            }
+        
+            // 前面已定义 WeatherApiResponse 接口明确 data 类型，这里使用 typedData 替代 data
+            const weatherInfo = typedData.results[0];
+      
+           // 返回格式化后的天气数据
+            return handleSuccessResponse(c, {
+                location: weatherInfo.location.name,
+                temperature: `${weatherInfo.now.temperature}°C`,
+                condition: weatherInfo.now.text,
+                lastUpdate: weatherInfo.last_update
+            }, '天气信息获取成功', 200);
+    
+        } catch (error) {
+            console.error('获取天气信息出错:', error);
+            return handleErrorResponse(c, '获取天气信息失败', 500, error);
+        }
+    }
 
     /**
      * 根据 user_id 查询所有匹配的订单信息

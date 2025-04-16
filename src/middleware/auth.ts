@@ -56,7 +56,6 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
     // 验证 token
     const decoded = await verifyToken(token);
- 
 
     if (!decoded) {
       return handleErrorResponse(c, '无效的令牌', 401);

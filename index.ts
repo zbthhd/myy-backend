@@ -10,6 +10,11 @@ import miscRoutes from "./src/routes/misc";
 import authRoutes from "./src/routes/auth";
 import userRoutes from "./src/routes/user_route";
 
+//新增数据波动
+import { Device } from "./src/entity/Device";
+import { DataFluctuationService } from "./src/utils/fluctuation/dataFluctuation.service";
+
+
 const indexLogger = createModuleLogger('index');
 
 // 只在开发环境中加载.env文件
@@ -58,8 +63,17 @@ app.route('/api/v1', apiV1);
 const port = process.env.NODE_ENV === 'development' ? 3090 : 9000
 
 
-AppDataSource.initialize().then(() => {
-    indexLogger.info("App datasource initialized")
+AppDataSource.initialize().then(async () => {
+    indexLogger.info("App datasource initialized");
+    
+    // 初始化数据波动服务
+    const fluctuationService = new DataFluctuationService(AppDataSource.getRepository(Device));
+    setInterval(() => {
+        fluctuationService.updateWithFluctuation()
+            .then(() => indexLogger.debug("数据波动更新完成"))
+            .catch(err => indexLogger.error("数据波动更新失败", err));
+    }, 5 * 60 * 1000); // 每5分钟执行一次
+
 }).catch(error => indexLogger.error(error)).then(() => {
     serve({
         fetch: app.fetch,
