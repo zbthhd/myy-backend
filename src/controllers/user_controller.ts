@@ -13,7 +13,6 @@ import { Device } from '../entity/Device';
 import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
 
-
 import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
