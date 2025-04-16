@@ -225,6 +225,8 @@ export class UserController {
 
     }
 
+    //上传问诊
+
     async upload_consultations(c: Context) {
         try {
             const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
