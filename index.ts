@@ -13,6 +13,7 @@ import userRoutes from "./src/routes/user_route";
 import { Device } from "./src/entity/Device";
 import { DataFluctuationService } from "./src/utils/fluctuation/dataFluctuation.service";
 
+
 const indexLogger = createModuleLogger('index');
 
 // 只在开发环境中加载.env文件
@@ -65,6 +66,7 @@ AppDataSource.initialize().then(async () => {
     indexLogger.info("App datasource initialized");
     
     // 初始化数据波动服务
+
     const fluctuationService = new DataFluctuationService();
     
     // 配置波动参数

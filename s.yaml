@@ -56,8 +56,12 @@ resources:
     props:
       region: ${vars.region}
       domainName: ${env(DOMAIN_PREFIX)}.foliumatrix.com
-      protocol: HTTP
+      protocol: HTTP,HTTPS
       routeConfig:
         routes:
           - path: /*
             functionName: ${vars.functionName}
+      certConfig:
+        certName: foliumatrix-3
+        certificate: oss://cn-hongkong/myy-backend-foliumatrix/cert/cert.pem
+        privateKey: oss://cn-hongkong/myy-backend-foliumatrix/cert/private.pem
