@@ -20,7 +20,6 @@ export class DataFluctuationService {
   };
   async updateWithFluctuation() {
     const devices = await this.deviceRepository.find();
-
     for (const device of devices) {
       for (const [field, range] of Object.entries(this.fluctuationRanges)) {
         if (this.isDeviceField(field) && typeof device[field] === 'number') {
