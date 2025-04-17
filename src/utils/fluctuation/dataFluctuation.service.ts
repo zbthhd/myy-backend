@@ -1,4 +1,3 @@
-
 import { AppDataSource } from '../../db/orm/data-source';
 import { Device } from '../../entity/Device';
 
@@ -23,7 +22,6 @@ export class DataFluctuationService {
 
   async updateWithFluctuation() {
     const devices = await this.deviceRepository.find();
-
     for (const device of devices) {
 
       for (const [field, range] of Object.entries(this.fluctuationRanges)) {
@@ -37,6 +35,8 @@ export class DataFluctuationService {
     }
   }
 
+
+  // ... 保留原有的 isDeviceField 方法 ...
   private isDeviceField(key: string): key is keyof Device {
     return [
       'LightLux',
@@ -51,4 +51,8 @@ export class DataFluctuationService {
       'CurrentTemperature',
     ].includes(key);
   }
+}
+
+
+
 

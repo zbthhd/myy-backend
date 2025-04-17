@@ -12,16 +12,11 @@ import * as fs from 'fs';
 import { Device } from '../entity/Device';
 import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
-
 import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
 import ossClient from '../services/ossClient';
-
-
-
 import { pinyin } from 'pinyin-pro';
-
 
 
 //import redisClient from '../services/redisClient';
@@ -170,7 +165,6 @@ export class UserController {
     }
 
     //上传工单 转人工
-
     async upload_work_order(c: Context) {
         try {
             // 解析请求体（假设是 JSON 格式）
@@ -225,7 +219,6 @@ export class UserController {
     }
 
     //上传问诊
-
     async upload_consultations(c: Context) {
         try {
             const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
@@ -293,9 +286,7 @@ export class UserController {
 
 
             newMaintenanceOrder.user_id = parseInt(userId, 10); // 确保 user_id 是数字
-
             newMaintenanceOrder.dev_id = parseInt(devId, 10); // 确保 user_id 是数字
-
             newMaintenanceOrder.maintenance_categories = 0; // 0 表示问诊
             newMaintenanceOrder.create_time = new Date(); // 当前时间
             newMaintenanceOrder.completion_time = new Date(); // 初始值为 null
@@ -479,7 +470,6 @@ export class UserController {
                         user_name: result.user.user_name,
                         phone: result.user.phone,
                         exp: Math.floor(Date.now() / 1000) + 31536000, // Token expires in 1 year
-
 
                         // 添加其他你想要包含在 token 中的用户信息
                     }

@@ -81,7 +81,6 @@ export const authMiddleware = async (c: Context, next: Next) => {
       // 如果 error 不是 Error 类型，记录原始值并返回通用错误
       console.error('未知错误:', error);
       return handleErrorResponse(c, '认证失败，请稍后重试', 500);
-
     }
 
   }
