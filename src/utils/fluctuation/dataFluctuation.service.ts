@@ -3,10 +3,10 @@ import { Device } from '../../entity/Device';
 
 export class DataFluctuationService {
   private deviceRepository = AppDataSource.getRepository(Device);
-  
+
   // ... 保留原有的 fluctuationRanges 定义 ...
-   // 定义各字段的波动范围
-   private fluctuationRanges = {
+  // 定义各字段的波动范围
+  private fluctuationRanges = {
 
     LightLux: 50, // ±50 lux
     RelativeHumidity: 2, // ±2%

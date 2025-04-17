@@ -18,6 +18,7 @@ import path from 'path';
 import ossClient from '../services/ossClient';
 
 import { pinyin } from 'pinyin-pro';
+import { DataFluctuationService } from '../utils/fluctuation/dataFluctuation.service';
 
 
 //import redisClient from '../services/redisClient';
@@ -32,6 +33,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 // 在类定义前添加logger
 const userLogger = createModuleLogger('user_controller');
 
+const dataFluctuationService = new DataFluctuationService();
+
 
 export class UserController {
     async getWeather(c: Context) {
@@ -42,26 +45,26 @@ export class UserController {
             // 从查询参数中获取 location
             const queryParams = c.req.query();
             let location = queryParams['location'];
-    
+
             // 验证 location 是否有效
             if (!location) {
                 return handleErrorResponse(c, '缺少 location 参数', 400);
             }
             // 使用
-            location = pinyin(location, { 
-            toneType: 'none', // 不带声调
-            type: 'string'    // 返回字符串
+            location = pinyin(location, {
+                toneType: 'none', // 不带声调
+                type: 'string'    // 返回字符串
 
             }).replace(/\s+/g, ''); // 手动去除所有空格;
             console.log(location);
-            
+
 
             // 这里可以添加调用天气API的逻辑
             // const weatherData = await weatherApi.get(location);
-             // 调用心知天气API
+            // 调用心知天气API
             const apiKey = 'S6TcPcSG5FNZconAv'; // 你的API密钥
             const apiUrl = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
-        
+
             const response = await fetch(apiUrl);
             const data = await response.json();
             console.log(data);
@@ -70,25 +73,25 @@ export class UserController {
             // 定义一个接口来明确 data 的类型
             interface WeatherApiResponse {
                 results: any[];
-                                }
+            }
 
             // 假设 data 是 WeatherApiResponse 类型
             const typedData = data as WeatherApiResponse;
             if (!typedData.results || typedData.results.length === 0) {
                 return handleErrorResponse(c, '未找到该地点的天气信息', 404);
             }
-        
+
             // 前面已定义 WeatherApiResponse 接口明确 data 类型，这里使用 typedData 替代 data
             const weatherInfo = typedData.results[0];
-      
-           // 返回格式化后的天气数据
+
+            // 返回格式化后的天气数据
             return handleSuccessResponse(c, {
                 location: weatherInfo.location.name,
                 temperature: `${weatherInfo.now.temperature}°C`,
                 condition: weatherInfo.now.text,
                 lastUpdate: weatherInfo.last_update
             }, '天气信息获取成功', 200);
-    
+
         } catch (error) {
             console.error('获取天气信息出错:', error);
             return handleErrorResponse(c, '获取天气信息失败', 500, error);
@@ -136,30 +139,30 @@ export class UserController {
             // 解析请求体
             const requestBody = await c.req.json();
 
-            const { user_id, dev_id,maintenance_categories } = requestBody;
-    
+            const { user_id, dev_id, maintenance_categories } = requestBody;
+
             // 验证输入参数
-            if (!user_id || !dev_id||!maintenance_categories) {
+            if (!user_id || !dev_id || !maintenance_categories) {
                 return handleErrorResponse(c, 'Missing or invalid user_id or dev_id or maintenance_categories', 400);
 
             }
-    
+
             // 获取 MaintenanceOrders 表的仓库
             const ordersRepository = AppDataSource.getRepository(MaintenanceOrders);
-    
+
             // 创建新记录
             const newMaintenanceOrder = new MaintenanceOrders();
 
             newMaintenanceOrder.user_id = parseInt(user_id, 10); // 确保 user_id 是数字
             newMaintenanceOrder.dev_id = parseInt(dev_id, 10);   // 确保 dev_id 是数字
-            newMaintenanceOrder.maintenance_categories=parseInt(maintenance_categories,10);
+            newMaintenanceOrder.maintenance_categories = parseInt(maintenance_categories, 10);
 
             newMaintenanceOrder.create_time = new Date();        // 设置创建时间
             newMaintenanceOrder.is_completion = 0;               // 初始状态为未完成
-    
+
             // 保存到数据库
             const savedOrder = await ordersRepository.save(newMaintenanceOrder);
-    
+
             // 返回成功响应
             return handleSuccessResponse(c, savedOrder, 'Maintenance order created successfully', 200);
         } catch (error) {
@@ -235,7 +238,7 @@ export class UserController {
             const files = body['images[]'];
             const consultationDescription = body['consultation_description'] as string | null;
 
-            const devId=body['dev_id'] as string | null;
+            const devId = body['dev_id'] as string | null;
 
             console.log(userId)
             console.log(files);
@@ -244,7 +247,7 @@ export class UserController {
 
             const fileList = Array.isArray(files) ? files : [files]; // 确保是数组
 
-            if (!userId||!devId) {
+            if (!userId || !devId) {
                 return handleErrorResponse(c, "缺少user_id或者dev_id", 400, error)
 
             }
@@ -349,6 +352,7 @@ export class UserController {
             if (!user_id || isNaN(parseInt(user_id, 10))) {
                 return handleErrorResponse(c, 'Invalid or missing user_id parameter', 400);
             }
+            dataFluctuationService.updateWithFluctuation();
             // 查找用户设备映射表中的记录
             console.log("到这儿了吗？");
             const parsedUserId = parseInt(user_id, 10);
