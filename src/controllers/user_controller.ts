@@ -12,14 +12,10 @@ import * as fs from 'fs';
 import { Device } from '../entity/Device';
 import * as os from 'os';
 import { MaintenanceOrders } from '../entity/MaintenanceOrders';
-
 import { createModuleLogger } from '../utils/logger';
 import { generateToken } from '../middleware/auth';
 import path from 'path';
 import ossClient from '../services/ossClient';
-// 由于无法找到模块“pinyin”的声明文件，添加类型声明以解决隐式 any 类型问题
-
-
 import { pinyin } from 'pinyin-pro';
 
 
@@ -94,6 +90,7 @@ export class UserController {
             return handleErrorResponse(c, '获取天气信息失败', 500, error);
         }
     }
+
     /**
      * 根据 user_id 查询所有匹配的订单信息
      * @param c - 请求上下文
@@ -134,11 +131,13 @@ export class UserController {
         try {
             // 解析请求体
             const requestBody = await c.req.json();
+
             const { user_id, dev_id,maintenance_categories } = requestBody;
     
             // 验证输入参数
             if (!user_id || !dev_id||!maintenance_categories) {
                 return handleErrorResponse(c, 'Missing or invalid user_id or dev_id or maintenance_categories', 400);
+
             }
     
             // 获取 MaintenanceOrders 表的仓库
@@ -146,9 +145,11 @@ export class UserController {
     
             // 创建新记录
             const newMaintenanceOrder = new MaintenanceOrders();
+
             newMaintenanceOrder.user_id = parseInt(user_id, 10); // 确保 user_id 是数字
             newMaintenanceOrder.dev_id = parseInt(dev_id, 10);   // 确保 dev_id 是数字
             newMaintenanceOrder.maintenance_categories=parseInt(maintenance_categories,10);
+
             newMaintenanceOrder.create_time = new Date();        // 设置创建时间
             newMaintenanceOrder.is_completion = 0;               // 初始状态为未完成
     
@@ -193,7 +194,9 @@ export class UserController {
 
             // 手动赋值现有字段（避免直接使用 Object.assign）
             newOrder.user_id = existingOrder.user_id;
+
             newOrder.dev_id = existingOrder.dev_id;
+
             newOrder.maintenance_categories = 1; // 修改为新的维护类别
             newOrder.create_time = new Date(); // 设置新的创建时间
             newOrder.completion_time = null; // 初始值为 null
@@ -214,6 +217,7 @@ export class UserController {
         }
 
     }
+
     //上传问诊
     async upload_consultations(c: Context) {
         try {
@@ -226,6 +230,7 @@ export class UserController {
             const userId = body['user_id'] as string | null;
             const files = body['images[]'];
             const consultationDescription = body['consultation_description'] as string | null;
+
             const devId=body['dev_id'] as string | null;
 
             console.log(userId)
@@ -234,8 +239,10 @@ export class UserController {
             // 提取文件字段（支持单文件或多文件）
 
             const fileList = Array.isArray(files) ? files : [files]; // 确保是数组
+
             if (!userId||!devId) {
                 return handleErrorResponse(c, "缺少user_id或者dev_id", 400, error)
+
             }
             if (!fileList || !Array.isArray(fileList)) {
                 return handleErrorResponse(c, "没有上传有效文件", 401)
