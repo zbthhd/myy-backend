@@ -54,9 +54,9 @@ export class UserController {
             location = pinyin(location, { 
             toneType: 'none', // 不带声调
             type: 'string'    // 返回字符串
-            });
+            }).replace(/\s+/g, ''); // 手动去除所有空格;
             console.log(location);
-            location="shenzhen"
+            
             // 这里可以添加调用天气API的逻辑
             // const weatherData = await weatherApi.get(location);
              // 调用心知天气API
@@ -65,7 +65,7 @@ export class UserController {
         
             const response = await fetch(apiUrl);
             const data = await response.json();
-        
+            console.log(data);
             // 处理API返回数据
             // 定义一个接口来明确 data 的类型
             interface WeatherApiResponse {
